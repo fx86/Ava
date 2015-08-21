@@ -15,15 +15,6 @@ except OSError:
 def get_date():
     return datetime.now().strftime('%d-%b-%Y_%H-%M-%S-%f')
 
-if OS == 'Darwin':
-    CMD = './MouseTools -location'.split()
-    MOUSEFN = 'get_mouse_osx'
-elif OS == 'Windows':
-    import win32gui
-    from pywintypes import error as os_errors
-    MOUSEFN = 'get_mouse_win'
-
-
 def get_mouse_win():
     '''gets current mouse coordinates from Windows'''
     try:
@@ -41,6 +32,15 @@ def get_mouse_osx():
                    bufsize=1).stdout.read().strip()
     return result.split('\n')
 
+
+if OS == 'Darwin':
+    CMD = './MouseTools -location'.split()
+    MOUSEFN = get_mouse_osx
+elif OS == 'Windows':
+    import win32gui
+    from pywintypes import error as os_errors
+    MOUSEFN = get_mouse_win
+
 if __name__ == '__main__':
     try:
         DATA = []
@@ -51,7 +51,7 @@ if __name__ == '__main__':
         with open(FNAME, 'w') as f:
             while True:
                 try:
-                    NEWX, NEWY = eval('%s()' % MOUSEFN)
+                    NEWX, NEWY = MOUSEFN()
                     # logs mouse coordinates if mouse moves
                     if not (NEWX == OLDX and NEWY == OLDY):
                         TIMESTAMP = get_date()
